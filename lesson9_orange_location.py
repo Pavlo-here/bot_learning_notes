@@ -9,17 +9,14 @@ bot = Bot(TOKEN_API)
 dp = Dispatcher(bot)
 
 kb = ReplyKeyboardMarkup(resize_keyboard=True)
-b1 = KeyboardButton("/help")
-b2 = KeyboardButton("/orange")
-b3 = KeyboardButton("/location")
-b4 = KeyboardButton("/close_keyboard")
-kb.add(b1).insert(b2).insert(b3).add(b4)
+kb.add(KeyboardButton("/help")).insert(KeyboardButton("/orange")).\
+    insert(KeyboardButton("/location")).add(KeyboardButton("/close_keyboard"))
 
 HELP_COMMAND = """
 <b>/help</b> - <em>допомога</em>
 <b>/start</b> - <em>старт бота</em>
 <b>/orange</b> - <em>відправка фото апельсина у чат</em>
-<b>/location</b> - <em>відправка випадкової геолокації</em>
+<b>/random_location</b> - <em>відправка випадкової геолокації</em>
 """
 
 
@@ -45,7 +42,7 @@ async def heart(message: types.Message):  # send photo of orange
                                                 "_-_whole-halved-segment.jpg")
 
 
-@dp.message_handler(commands=["location"])
+@dp.message_handler(commands=["random_location"])
 async def random_location(message: types.Message):  # send random location
     await bot.send_location(chat_id=message.chat.id, latitude=random()*100, longitude=random()*100)
 
