@@ -36,15 +36,16 @@ async def description_command(message: types.Message):
 
 
 @dp.message_handler(commands=["close_keyboard"])
-async def close_keyboard(message: types.Message):
+async def close_keyboard(message: types.Message):  # close keyboard button
     await bot.send_message(message.from_user.id, text="Keyboard removed!", reply_markup=ReplyKeyboardRemove())
 
 
 @dp.message_handler()
-async def heart(message: types.Message):
+async def heart(message: types.Message):  # send sticker answering on heart emoji
     if message.text == '❤️':
         await bot.send_sticker(message.from_user.id,
-                               sticker="CAACAgIAAxkBAAEJbvJklASnBym5mF2sbsg-GzQRpT5FlwACdwADhIUKFrFQQrqaZrbXLwQ")
+                               sticker="CAACAgIAAxkBAAEJbvJklASnBym5mF2sbsg-GzQRpT5FlwACdwADhIUKFrF"
+                                       "QQrqaZrbXLwQ")
 
 
 if __name__ == "__main__":
