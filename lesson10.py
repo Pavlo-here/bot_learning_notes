@@ -8,7 +8,6 @@ dp = Dispatcher(bot)
 
 HELP_COMMAND = """
 /help
-/start
 """
 
 ikb = InlineKeyboardMarkup(row_width=2)
