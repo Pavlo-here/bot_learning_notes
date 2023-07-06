@@ -23,6 +23,8 @@ random_photos = ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8"
                  "/en/photos/Zugpsitze_mountain.jpg?crop=0%2C214%2C3008%2C1579&wid=1200&hei=630&scl=2.506666666666667",
                  "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg"]
 
+photos = dict(zip(random_photos, ['1', '2', '3']))
+
 
 async def on_startup(_):
     print("Bot is executing")
@@ -37,7 +39,10 @@ async def open_kb_photo(message: types.Message):
 
 @dp.message_handler(Text(equals="Random"))
 async def send_random_photo(message: types.Message):
-    await bot.send_photo(message.chat.id, photo=random.choice(random_photos))
+    random_photo = random.choice(list(photos.keys()))
+    await bot.send_photo(message.chat.id,
+                         photo=random_photo,
+                         caption=photos[random_photo])
 
 
 @dp.message_handler(Text(equals="Main menu"))
