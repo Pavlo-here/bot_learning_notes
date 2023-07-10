@@ -1,10 +1,10 @@
 from aiogram import types, Bot, Dispatcher, executor
 from aiogram.dispatcher.filters import Text
+from aiogram.types import ReplyKeyboardRemove
 import random
 
-from keyboards import kb, kb_photo
+from keyboards import kb, kb_photo, ikb
 from config import TOKEN_API
-
 
 bot = Bot(token=TOKEN_API)
 dp = Dispatcher(bot=bot)
@@ -17,17 +17,25 @@ HELP_TEXT = """
 <b>/close</b> - <em>close keyboard</em>
 """
 
-random_photos = ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8"
-                 "/Altja_j%C3%B5gi_Lahemaal.jpg/1200px-Altja_j%C3%B5gi_Lahemaal.jpg",
-                 "https://natureconservancy-h.assetsadobe.com/is/image/content/dam/tnc/nature"
-                 "/en/photos/Zugpsitze_mountain.jpg?crop=0%2C214%2C3008%2C1579&wid=1200&hei=630&scl=2.506666666666667",
-                 "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg"]
+photos = ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8"
+          "/Altja_j%C3%B5gi_Lahemaal.jpg/1200px-Altja_j%C3%B5gi_Lahemaal.jpg",
+          "https://natureconservancy-h.assetsadobe.com/is/image/content/dam/tnc/nature"
+          "/en/photos/Zugpsitze_mountain.jpg?crop=0%2C214%2C3008%2C1579&wid=1200&hei=630&scl=2.506666666666667",
+          "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg"]
 
-photos = dict(zip(random_photos, ['1', '2', '3']))
+photos_with_description = dict(zip(photos, ['River', 'Lake', 'Grass']))
 
 
 async def on_startup(_):
     print("Bot is executing")
+
+
+async def get_rand_photo(message: types.Message):
+    photo = random.choice(list(photos_with_description.keys()))
+    await bot.send_photo(message.chat.id,
+                         photo=photo,
+                         caption=photos_with_description[photo],
+                         reply_markup=ikb)
 
 
 @dp.message_handler(Text(equals="Random photo"))
@@ -39,10 +47,7 @@ async def open_kb_photo(message: types.Message):
 
 @dp.message_handler(Text(equals="Random"))
 async def send_random_photo(message: types.Message):
-    random_photo = random.choice(list(photos.keys()))
-    await bot.send_photo(message.chat.id,
-                         photo=random_photo,
-                         caption=photos[random_photo])
+    await get_rand_photo(message)
 
 
 @dp.message_handler(Text(equals="Main menu"))
@@ -72,6 +77,27 @@ async def cmd_help(message: types.Message):
                                                     "ym5mF2sbsg-GzQRpT5FlwACdwADhIUKFrFQQrqaZrbXLwQ")
     await message.answer(text="Our bot has a lot of functions, discover them!")
     await message.delete()
+
+
+@dp.message_handler(commands=['close'])
+async def close_func(message: types.Message):
+    await bot.send_message(message.chat.id,
+                           text='Keyboard closed.',
+                           reply_markup=ReplyKeyboardRemove())
+    await message.delete()
+
+
+@dp.callback_query_handler()
+async def callback_random_photo(callback: types.CallbackQuery):
+    if callback.data == 'like':
+        await callback.answer("You've liked it!")
+        #  await callback.message.answer("You've liked it")
+    elif callback.data == 'dislike':
+        await callback.answer("You've disliked it")
+        #  await callback.message.answer("You've disliked it")
+    elif callback.data == 'next':
+        await get_rand_photo(message=callback.message)
+        await callback.answer()
 
 
 if __name__ == "__main__":
