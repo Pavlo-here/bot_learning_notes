@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import ReplyKeyboardRemove
 import random
 
-from keyboards import kb, kb_photo, ikb
+from keyboards import kb, ikb
 from config import TOKEN_API
 
 bot = Bot(token=TOKEN_API)
@@ -24,6 +24,9 @@ photos = ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8"
           "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_1280.jpg"]
 
 photos_with_description = dict(zip(photos, ['River', 'Lake', 'Grass']))
+random_photo = random.choice(list(photos_with_description.keys()))
+
+flag = False
 
 
 async def on_startup(_):
@@ -31,29 +34,19 @@ async def on_startup(_):
 
 
 async def get_rand_photo(message: types.Message):
-    photo = random.choice(list(photos_with_description.keys()))
+    global random_photo  # небажано використовувати глобальні змінні
+    random_photo = random.choice(list(photos_with_description.keys()))
     await bot.send_photo(message.chat.id,
-                         photo=photo,
-                         caption=photos_with_description[photo],
+                         photo=random_photo,
+                         caption=photos_with_description[random_photo],
                          reply_markup=ikb)
 
 
 @dp.message_handler(Text(equals="Random photo"))
 async def open_kb_photo(message: types.Message):
-    await message.answer(text="To get a random picture - press on a button called 'Random'.",
-                         reply_markup=kb_photo)
-    await message.delete()
-
-
-@dp.message_handler(Text(equals="Random"))
-async def send_random_photo(message: types.Message):
+    await message.answer(text='Here is random photo',
+                         reply_markup=ReplyKeyboardRemove())
     await get_rand_photo(message)
-
-
-@dp.message_handler(Text(equals="Main menu"))
-async def open_kb_photo(message: types.Message):
-    await message.answer(text="Welcome back to main menu.",
-                         reply_markup=kb)
     await message.delete()
 
 
@@ -79,6 +72,13 @@ async def cmd_help(message: types.Message):
     await message.delete()
 
 
+@dp.message_handler(commands=['location'])
+async def cmd_location(message: types.Message):
+    await bot.send_location(message.chat.id,
+                            latitude=random.randint(0, 100),
+                            longitude=random.randint(0, 100))
+
+
 @dp.message_handler(commands=['close'])
 async def close_func(message: types.Message):
     await bot.send_message(message.chat.id,
@@ -89,14 +89,28 @@ async def close_func(message: types.Message):
 
 @dp.callback_query_handler()
 async def callback_random_photo(callback: types.CallbackQuery):
+    global random_photo, flag  # небажано використовувати глобальні змінні
     if callback.data == 'like':
-        await callback.answer("You've liked it!")
-        #  await callback.message.answer("You've liked it")
+        if not flag:
+            await callback.answer("You liked it!")
+            flag = not flag
+        else:
+            await callback.answer("You've already liked it!")
+
     elif callback.data == 'dislike':
-        await callback.answer("You've disliked it")
-        #  await callback.message.answer("You've disliked it")
+        await callback.answer("You disliked it")
+
+    elif callback.data == 'menu':
+        await callback.message.answer("Returned to main menu!", reply_markup=kb)
+        await callback.message.delete()
+        await callback.answer()
+
     elif callback.data == 'next':
-        await get_rand_photo(message=callback.message)
+        random_photo = random.choice(list(filter(lambda x: x != random_photo, list(photos_with_description.keys()))))
+        await callback.message.edit_media(types.InputMedia(media=random_photo,
+                                                           type='photo',
+                                                           caption=photos_with_description[random_photo]),
+                                          reply_markup=ikb)
         await callback.answer()
 
 
