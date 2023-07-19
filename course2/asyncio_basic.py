@@ -3,12 +3,12 @@ import asyncio
 
 async def send_hello() -> None:
     await asyncio.sleep(2)
-    print('Hello')
+    print("Hello")
 
 
 async def send_bye() -> None:
     await asyncio.sleep(1)
-    print('Bye')
+    print("Bye")
 
 
 async def main():
@@ -20,4 +20,3 @@ async def main():
 
 
 asyncio.run(main())
-
