@@ -1,7 +1,8 @@
-"""Lesson - callback data count"""
+"""Lesson - callback data count and random number"""
 import sys
 
 sys.path.append("..")
+import random
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from config import TOKEN_API
@@ -18,7 +19,8 @@ def get_inline_keyboard() -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(text="Increase", callback_data="btn_increase"),
                 InlineKeyboardButton(text="Decrease", callback_data="btn_decrease"),
-            ]
+            ],
+            [InlineKeyboardButton(text="Random", callback_data="btn_random")],
         ]
     )
 
@@ -47,7 +49,11 @@ async def ikb_callback_handler(callback: types.CallbackQuery) -> None:
         await callback.message.edit_text(
             f"The current number is {number}", reply_markup=get_inline_keyboard()
         )
-
+    elif callback.data == "btn_random":
+        number = random.randint(1, 59)
+        await callback.message.edit_text(
+            f"The current number is {number}", reply_markup=get_inline_keyboard()
+        )
     else:
         1 / 0
 
