@@ -9,11 +9,9 @@ ikb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton("👍", callback_data="like"),
-            InlineKeyboardButton("👎", callback_data="dislike")
+            InlineKeyboardButton("👎", callback_data="dislike"),
         ],
-        [
-            InlineKeyboardButton("Close", callback_data="close")
-        ]
+        [InlineKeyboardButton("Close", callback_data="close")],
     ]
 )
 
@@ -22,12 +20,15 @@ marker = 0
 bot = Bot(token=TOKEN_API)
 dp = Dispatcher(bot)
 
+
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
-    await bot.send_photo(chat_id=message.from_user.id,
-                         photo="https://media.macphun.com/img/uploads/macphun/blog/2063/_1.jpeg?q=75&w=1710&h=906&resize=cover",
-                         caption="Do yo like this photo",
-                         reply_markup=ikb)
+    await bot.send_photo(
+        chat_id=message.from_user.id,
+        photo="https://media.macphun.com/img/uploads/macphun/blog/2063/_1.jpeg?q=75&w=1710&h=906&resize=cover",
+        caption="Do yo like this photo",
+        reply_markup=ikb,
+    )
 
 
 @dp.callback_query_handler()
